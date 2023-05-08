@@ -25,4 +25,8 @@ export const configOptions: ConfigModuleOptions = {
   cache: true,
   load: [databaseConfig, jwtConfig],
   validationSchema: envValidator,
+  validationOptions: {
+    allowUnknown: true,
+    abortEarly: true,
+  },
 };
