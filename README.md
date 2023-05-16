@@ -19,23 +19,19 @@ yarn run start
 localhost:3000/docs
 ```
 
-## Run with docker
+## Dev-Docker
 
-1. Build container image
 ```
-docker build -t (name):(version) .
-```
+cd dev-docker
 
-2. Execute container
-```
-// Development mode
-docker run -d -p (Host machine port):3000 (name):(version)
-
-// Production mode
-docker run -d -p (Host machine port):3000 (name):(version) start
+docker-compose up -d
 ```
 
-3. Open API Document
+## Production Docker
+
 ```
-localhost:(Host machine port)/docs
+cd production-docker
+
+docker-compose up -d
 ```
+

@@ -4,7 +4,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { HealthService } from './health.service';
-import databaseConfig from 'src/config/config/database.config';
+import databaseConfig from '@app/config/config/database.config';
 
 @Module({
   imports: [TerminusModule, HttpModule],
