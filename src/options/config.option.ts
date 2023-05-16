@@ -1,11 +1,11 @@
 import { ConfigModuleOptions } from '@nestjs/config';
 import * as dotenv from 'dotenv';
-import { envValidator } from 'src/config/validaotr/env.validaotr';
-import databaseConfig from 'src/config/config/database.config';
-import jwtConfig from 'src/config/config/jwt.config';
+import { envValidator } from '@app/config/validater/env.validater';
+import databaseConfig from '@app/config/config/database.config';
+import jwtConfig from '@app/config/config/jwt.config';
 
 dotenv.config({
-  path: `${__dirname}/../config/env/${process.env.API_MODE || 'development'
+  path: `${__dirname}/../app/config/env/${process.env.API_MODE || 'development'
     }.env`,
 });
 
@@ -16,6 +16,8 @@ dotenv.config({
  * load: Load configuration namespaces
  * validationSchema: check required field of process.env
  */
+
+console.log(process.env.API_MODE);
 
 export const configOptions: ConfigModuleOptions = {
   isGlobal: true,

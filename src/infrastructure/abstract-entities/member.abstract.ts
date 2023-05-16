@@ -6,11 +6,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { MemberInterface } from '../interface/member';
 import { IsDate, IsOptional, IsString } from 'class-validator';
+import { MemberInterface } from './member.interface';
 
-@Entity('member')
-export class Member implements MemberInterface {
+export abstract class Member implements MemberInterface {
   @PrimaryGeneratedColumn('uuid')
   @ApiProperty()
   id: string;
@@ -78,7 +77,7 @@ export class Member implements MemberInterface {
   @ApiProperty()
   updatedAt: Date;
 
-  constructor(data: Member) {
+  constructor(data: MemberInterface) {
     Object.assign(this, data);
   }
 }

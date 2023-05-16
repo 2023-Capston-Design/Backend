@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { DepartmentInterface } from './department';
+import { DepartmentInterface } from './department.interface';
 
 @Entity()
 export class Department implements DepartmentInterface {

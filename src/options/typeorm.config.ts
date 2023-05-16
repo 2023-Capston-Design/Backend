@@ -4,7 +4,7 @@ import {
   TypeOrmModuleAsyncOptions,
   TypeOrmModuleOptions,
 } from '@nestjs/typeorm';
-import databaseConfig from 'src/config/config/database.config';
+import databaseConfig from '@app/config/config/database.config';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
 export const typeORMConfig: TypeOrmModuleAsyncOptions = {

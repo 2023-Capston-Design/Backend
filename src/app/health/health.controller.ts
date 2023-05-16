@@ -2,7 +2,7 @@ import { Controller, Get, Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { HealthCheck, HealthCheckResult } from '@nestjs/terminus';
-import databaseConfig from 'src/config/config/database.config';
+import databaseConfig from '@app/config/config/database.config';
 import { pingpong } from './types/ping.response';
 import { HealthService } from './health.service';
 

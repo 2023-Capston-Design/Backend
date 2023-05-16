@@ -1,19 +1,21 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { HealthModule } from './health/health.module';
+import { AppController } from './app/app.controller';
+import { AppService } from '@app/app.service';
+import { HealthModule } from '@app/health/health.module';
 import { ConfigModule } from '@nestjs/config';
-import { configOptions } from './options/config.option';
-import { MemberModule } from './member/member.module';
+import { configOptions } from '@src/options/config.option';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { typeORMConfig } from './options/typeorm.config';
+import { typeORMConfig } from '@src/options/typeorm.config';
+import { StudentModule } from '@app/student/student.module';
+import { InstructorModule } from '@app/instructor/instructor.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(configOptions),
     TypeOrmModule.forRootAsync(typeORMConfig),
     HealthModule,
-    MemberModule,
+    StudentModule,
+    InstructorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
