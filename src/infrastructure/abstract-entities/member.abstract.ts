@@ -2,12 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   CreateDateColumn,
-  Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IsDate, IsOptional, IsString } from 'class-validator';
 import { MemberInterface } from './member.interface';
+import { Role } from '@infrastructure/enum/role.enum';
+import { Sex } from '@infrastructure/enum/sex.enum';
 
 export abstract class Member implements MemberInterface {
   @PrimaryGeneratedColumn('uuid')
@@ -20,7 +20,6 @@ export abstract class Member implements MemberInterface {
     nullable: false,
   })
   @ApiProperty()
-  @IsString()
   email: string;
 
   @Column('varchar', {
@@ -28,7 +27,6 @@ export abstract class Member implements MemberInterface {
     nullable: false,
   })
   @ApiProperty()
-  @IsString()
   name: string;
 
   @Column('varchar', {
@@ -36,7 +34,6 @@ export abstract class Member implements MemberInterface {
     nullable: false,
   })
   @ApiProperty()
-  @IsString()
   password: string;
 
   @Column('enum', {
@@ -57,16 +54,12 @@ export abstract class Member implements MemberInterface {
     nullable: true,
   })
   @ApiProperty()
-  @IsOptional()
-  @IsDate()
   birth?: Date;
 
   @Column('varchar', {
     nullable: true,
   })
   @ApiProperty()
-  @IsOptional()
-  @IsDate()
   profileImageURL?: string;
 
   @CreateDateColumn()
@@ -76,8 +69,4 @@ export abstract class Member implements MemberInterface {
   @UpdateDateColumn()
   @ApiProperty()
   updatedAt: Date;
-
-  constructor(data: MemberInterface) {
-    Object.assign(this, data);
-  }
 }

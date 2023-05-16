@@ -24,7 +24,7 @@
       "@app/*": [
         "src/app/*"
       ],
-      "@infrastructure": [
+      "@infrastructure/*": [
         "src/infrastructure/*"
       ]
     }

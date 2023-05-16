@@ -17,8 +17,6 @@ dotenv.config({
  * validationSchema: check required field of process.env
  */
 
-console.log(process.env.API_MODE);
-
 export const configOptions: ConfigModuleOptions = {
   isGlobal: true,
   envFilePath: [
