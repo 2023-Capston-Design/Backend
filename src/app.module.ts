@@ -9,6 +9,7 @@ import { typeORMConfig } from '@src/options/typeorm.config';
 import { StudentModule } from '@app/student/student.module';
 import { InstructorModule } from '@app/instructor/instructor.module';
 import { DepartmentModule } from './app/department/department.module';
+import { MembersModule } from './app/members/members.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DepartmentModule } from './app/department/department.module';
     StudentModule,
     InstructorModule,
     DepartmentModule,
+    MembersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

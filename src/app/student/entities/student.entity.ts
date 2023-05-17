@@ -2,10 +2,10 @@ import { Member } from '@infrastructure/abstract-entities/member.abstract';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { StudentInterface } from '../interface/student.interface';
 import { ApiProperty } from '@nestjs/swagger';
-import { Department } from '@app/department/entities/department.entity';
+import { DepartmentEntity } from '@app/department/entities/department.entity';
 
 @Entity('student')
-export class Student extends Member implements StudentInterface {
+export class StudentEntity extends Member implements StudentInterface {
   @Column('varchar', {
     nullable: false,
   })
@@ -13,7 +13,7 @@ export class Student extends Member implements StudentInterface {
   studentId: string;
 
   @ManyToOne(
-    () => Department,
+    () => DepartmentEntity,
     (department) => {
       department.students;
     },
