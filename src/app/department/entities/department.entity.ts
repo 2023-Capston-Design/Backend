@@ -8,11 +8,11 @@ import {
   OneToMany,
 } from 'typeorm';
 import { DepartmentInterface } from '../interface/department.interface';
-import { Student } from '@app/student/entities/student.entity';
-import { Instructor } from '@app/instructor/entities/instructor.entity';
+import { StudentEntity } from '@app/student/entities/student.entity';
+import { InstructorEntity } from '@app/instructor/entities/instructor.entity';
 
 @Entity('department')
-export class Department implements DepartmentInterface {
+export class DepartmentEntity implements DepartmentInterface {
   @PrimaryGeneratedColumn()
   @ApiProperty()
   id: number;
@@ -48,11 +48,11 @@ export class Department implements DepartmentInterface {
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => Student, (student) => student.departmentId)
-  students: Student[];
+  @OneToMany(() => StudentEntity, (student) => student.departmentId)
+  students: StudentEntity[];
 
-  @OneToMany(() => Instructor, (instructor) => instructor.departmentId)
-  instructors: Instructor[];
+  @OneToMany(() => InstructorEntity, (instructor) => instructor.departmentId)
+  instructors: InstructorEntity[];
 
   constructor(data: DepartmentInterface) {
     Object.assign(this, data);

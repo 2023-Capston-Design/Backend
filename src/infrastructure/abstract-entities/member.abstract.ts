@@ -10,9 +10,9 @@ import { Role } from '@infrastructure/enum/role.enum';
 import { Sex } from '@infrastructure/enum/sex.enum';
 
 export abstract class Member implements MemberInterface {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   @ApiProperty()
-  id: string;
+  id: number;
 
   @Column('varchar', {
     length: 100,
