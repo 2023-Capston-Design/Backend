@@ -5,12 +5,12 @@ export enum JwtSubjectType {
   REFRESH = 'REFRESH',
 }
 
-export interface FilteredJwtPayload {
+export interface JwtPayload {
   user_id?: number;
   user_role?: Role;
 }
 
-export interface JwtPayload extends FilteredJwtPayload {
+export interface JwtDecodedPayload extends JwtPayload {
   sub: JwtSubjectType;
   iat: number;
   nbf: number;

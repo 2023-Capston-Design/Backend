@@ -1,10 +1,12 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { extend } from 'joi';
 
 export enum AUTH_ERROR {
   NEED_TOKEN = 'NEED_TOKEN',
   INVALID_TOKEN = 'INVALID_TOKEN',
+  INVALID_PASSWORD = 'INVALID_PASSWORD',
   UNCONFIRMED_ROLE = 'UNCONFIRMED_ROLE',
+  AUTHENTICATION_REQUIRED = 'AUTHENTICATION_REQUIRED',
 }
 
 export class NeedToken extends UnauthorizedException {
@@ -19,8 +21,20 @@ export class InvalidToken extends UnauthorizedException {
   }
 }
 
-export class UnconfirmedRole extends UnauthorizedException {
+export class InvalidPassword extends BadRequestException {
+  constructor() {
+    super('올바르지 않은 비밀번호입니다', AUTH_ERROR.INVALID_PASSWORD);
+  }
+}
+
+export class UnconfirmedRole extends BadRequestException {
   constructor() {
     super('확인되지 않은 role', AUTH_ERROR.UNCONFIRMED_ROLE);
+  }
+}
+
+export class AuthenticationRequired extends UnauthorizedException {
+  constructor() {
+    super('로그인이 필요합니다', AUTH_ERROR.AUTHENTICATION_REQUIRED);
   }
 }

@@ -5,13 +5,15 @@ import {
   NeedToken,
   UnconfirmedRole,
   InvalidToken,
+  AuthenticationRequired,
 } from '@infrastructure/errors/auth.error';
 import jwtConfig from '@app/config/config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { Inject } from '@nestjs/common';
 import {
   JwtPayload,
-  FilteredJwtPayload,
+  JwtDecodedPayload,
+  JwtSubjectType,
 } from '@src/infrastructure/types/jwt.types';
 import { StudentService } from '../student/student.service';
 import { InstructorService } from '../instructor/instructor.service';
@@ -36,7 +38,7 @@ export class AuthGuard implements CanActivate {
     if (!token) {
       throw new NeedToken();
     }
-    let payload: JwtPayload;
+    let payload: JwtDecodedPayload;
     try {
       payload = await this.jwtService.verifyAsync(token, {
         secret: this.jwtSettings.secret,
@@ -54,6 +56,11 @@ export class AuthGuard implements CanActivate {
        */
       return false;
     }
+
+    // If token is not access token
+    if (payload.sub !== JwtSubjectType.ACCESS) {
+      throw new AuthenticationRequired();
+    }
     const id: number = payload.user_id;
     let user: StudentProfileResponse | InstructorProfileRepsonse | null;
     switch (payload.user_role) {
@@ -64,15 +71,15 @@ export class AuthGuard implements CanActivate {
         user = await this.instructorService.getInstructorById(id);
         break;
       default:
-        return false;
+        throw new UnconfirmedRole();
     }
     // If user not found
     if (!user) {
-      return false;
+      throw new MemberNotFound();
     }
 
     // If user found
-    const requser: FilteredJwtPayload = {
+    const requser: JwtPayload = {
       user_id: user.id,
       user_role: user.role,
     };

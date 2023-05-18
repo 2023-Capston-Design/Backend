@@ -31,6 +31,18 @@ export class StudentService {
     return new StudentProfileResponse(student);
   }
 
+  public async getStudentByEmail(
+    email: string,
+  ): Promise<StudentProfileResponse> {
+    const student = await this.studentRepository.findOneBy({
+      email,
+    });
+    if (!student) {
+      throw new MemberNotFound();
+    }
+    return new StudentProfileResponse(student);
+  }
+
   public async getAllStudents(
     page: number,
     pagesize: number,

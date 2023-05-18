@@ -10,7 +10,7 @@ import { StudentModule } from '@app/student/student.module';
 import { InstructorModule } from '@app/instructor/instructor.module';
 import { DepartmentModule } from './app/department/department.module';
 import { MembersModule } from './app/members/members.module';
-import { JwtModule } from '@nestjs/jwt';
+import { AuthModule } from './app/auth/auth.module';
 
 @Module({
   imports: [
@@ -21,8 +21,9 @@ import { JwtModule } from '@nestjs/jwt';
     InstructorModule,
     DepartmentModule,
     MembersModule,
+    AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [AppService],
 })
 export class AppModule { }

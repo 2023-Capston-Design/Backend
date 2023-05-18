@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Role } from '@src/infrastructure/enum/role.enum';
 import { Reflector } from '@nestjs/core';
-import { FilteredJwtPayload } from '@src/infrastructure/types/jwt.types';
+import { JwtPayload } from '@src/infrastructure/types/jwt.types';
 
 /**
  * This decorator require after @AuthGuard
@@ -31,8 +31,9 @@ export class RoleGuard implements CanActivate {
     if (!availableRoles || availableRoles.includes('any')) {
       return true;
     }
+
     const request = context.switchToHttp().getRequest();
-    const user: FilteredJwtPayload = request.user;
+    const user: JwtPayload = request.user;
 
     if (!user) return false;
     // User's role will be defined in 'user.user_role'

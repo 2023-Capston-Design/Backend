@@ -7,9 +7,12 @@ import {
   DuplicatedEmail,
   DuplicatedStudentId,
 } from '@src/infrastructure/errors/members.errors';
+import { InvalidPassword } from '@infrastructure/errors/auth.error';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class MembersService {
+  private readonly hashCycle: number = 12;
   constructor(
     @InjectRepository(StudentEntity)
     private readonly studentRepository: Repository<StudentEntity>,
@@ -40,8 +43,22 @@ export class MembersService {
       },
     });
 
-    if (studentValidate > 0 && instructorValidate > 0) {
+    if (studentValidate > 0 || instructorValidate > 0) {
       throw new DuplicatedEmail();
+    }
+  }
+
+  public async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, this.hashCycle);
+  }
+
+  public async validatePassword(
+    password: string,
+    hashedPassword: string,
+  ): Promise<void> {
+    const result = await bcrypt.compare(password, hashedPassword);
+    if (!result) {
+      throw new InvalidPassword();
     }
   }
 }
