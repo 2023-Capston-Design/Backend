@@ -10,5 +10,6 @@ import { MembersModule } from '../members/members.module';
   imports: [TypeOrmModule.forFeature([InstructorEntity]), MembersModule],
   providers: [InstructorService],
   controllers: [InstructorController],
+  exports: [InstructorService],
 })
 export class InstructorModule { }

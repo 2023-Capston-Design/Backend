@@ -3,49 +3,79 @@ import { StudentInterface } from '@app/student/interface/student.interface';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '@src/infrastructure/enum/role.enum';
 import { Sex } from '@src/infrastructure/enum/sex.enum';
+import {
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class StudentProfileResponse implements StudentInterface {
   @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
   id: number;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   studentId: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   email: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   name: string;
 
   @ApiProperty({
     enum: Sex,
   })
+  @IsNotEmpty()
+  @IsEnum(Sex)
   sex: Sex;
 
   @ApiProperty({
     enum: Role,
   })
+  @IsNotEmpty()
+  @IsEnum(Role)
   role: Role;
 
   @ApiProperty()
+  @IsOptional()
+  @IsDate()
   birth: Date;
 
   @ApiProperty({
     nullable: true,
   })
+  @IsOptional()
+  @IsString()
   profileImageURL?: string;
 
   @ApiProperty({
     nullable: true,
   })
+  @IsOptional()
+  @IsNumber()
   departmentId?: number;
 
   @ApiProperty()
+  @IsOptional()
+  @IsDate()
   createdAt: Date;
 
   @ApiProperty({
     nullable: true,
   })
+  @IsOptional()
+  @IsDate()
   updatedAt?: Date;
 
   public getStudentID() {

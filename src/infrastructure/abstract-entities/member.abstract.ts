@@ -50,7 +50,7 @@ export abstract class Member implements MemberInterface {
   @ApiProperty()
   role: Role;
 
-  @Column('date', {
+  @Column('datetime', {
     nullable: true,
   })
   @ApiProperty()
