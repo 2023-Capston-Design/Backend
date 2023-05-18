@@ -31,6 +31,16 @@ export class InstructorService {
     return new InstructorProfileRepsonse(instructor);
   }
 
+  public async getInstructorByEmail(
+    email: string,
+  ): Promise<InstructorProfileRepsonse> {
+    const instructor = await this.instructorRepository.findOneBy({ email });
+    if (!instructor) {
+      throw new MemberNotFound();
+    }
+    return new InstructorProfileRepsonse(instructor);
+  }
+
   public async getAllInstructors(
     page: number,
     pagesize: number,
