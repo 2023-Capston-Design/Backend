@@ -8,6 +8,6 @@ interface SwaggerTag {
 }
 
 interface Request extends Request {
-  user;
-  token_subject;
+  user; // JWT Payload field
+  token_subject; // JWT Token subject. One of value in enum 'JWTSubjectType'
 }
