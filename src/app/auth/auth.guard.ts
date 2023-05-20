@@ -6,6 +6,7 @@ import {
   UnconfirmedRole,
   InvalidToken,
   AuthenticationRequired,
+  TokenExpired,
 } from '@infrastructure/errors/auth.error';
 import jwtConfig from '@app/config/config/jwt.config';
 import { ConfigType } from '@nestjs/config';
@@ -53,6 +54,11 @@ export class AuthGuard implements CanActivate {
         secret: this.jwtSettings.secret,
       });
     } catch (err) {
+      if (err.name === 'JsonWebTokenError') {
+        throw new InvalidToken();
+      } else if (err.name === 'TokenExpiredError') {
+        throw new TokenExpired();
+      }
       /**
        * TODO
        *
@@ -66,10 +72,15 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
-    // If token is not access token
-    if (payload.sub !== JwtSubjectType.ACCESS) {
-      throw new AuthenticationRequired();
+    // If token is not access or refresh token
+    switch (payload.sub) {
+      case JwtSubjectType.ACCESS:
+      case JwtSubjectType.REFRESH:
+        break;
+      default:
+        throw new AuthenticationRequired();
     }
+
     const id: number = payload.user_id;
     let repository: Repository<
       StudentEntity | ManagerEntity | InstructorEntity
@@ -102,7 +113,11 @@ export class AuthGuard implements CanActivate {
       user_id: user.id,
       user_role: user.role,
     };
+
+    // Request Token's Payload
     request.user = requser;
+    // Request Token's subject
+    request.token_subject = payload.sub;
     return true;
   }
 

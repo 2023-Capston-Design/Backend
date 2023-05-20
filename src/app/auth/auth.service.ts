@@ -5,10 +5,12 @@ import { StudentService } from '../student/student.service';
 import jwtConfig from '../config/config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { TokenResponse } from './dto/token.response';
-import { Request } from 'express';
 import { LoginRequest } from './dto/login.request';
 import { Role } from '@src/infrastructure/enum/role.enum';
-import { UnconfirmedRole } from '@src/infrastructure/errors/auth.error';
+import {
+  InvalidToken,
+  UnconfirmedRole,
+} from '@src/infrastructure/errors/auth.error';
 import { MembersService } from '../members/members.service';
 import { StudentProfileResponse } from '../student/dto/student-profile.response';
 import { InstructorProfileRepsonse } from '../instructor/dto/instructor-profile.response';
@@ -18,10 +20,9 @@ import {
 } from '@src/infrastructure/types/jwt.types';
 import { JoinResponse } from './dto/join.response';
 import { JoinRequest } from './dto/join.request';
-import { StudentCreateDto } from '../student/dto/student-create.request';
-import { InstructorCreateDto } from '../instructor/dto/instructor-create.request';
 import { ManagerService } from '../manager/manager.service';
 import { ManagerProfileResponse } from '../manager/dto/manager-profile.response';
+import { Request } from '@src/infrastructure/types';
 
 @Injectable()
 export class AuthService {
@@ -92,6 +93,18 @@ export class AuthService {
       throw new UnconfirmedRole();
     }
     return result;
+  }
+
+  public async refreshAccessToken(req: Request) {
+    const token_subject = req.token_subject;
+    const payload = req.user;
+    console.log(token_subject);
+    if (token_subject !== JwtSubjectType.REFRESH) {
+      throw new InvalidToken();
+    }
+
+    const accessToken = await this.generateAccessToken(payload);
+    return new TokenResponse(accessToken, null);
   }
 
   private async generateAccessToken(payload: JwtPayload): Promise<string> {

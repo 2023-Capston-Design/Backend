@@ -8,10 +8,15 @@ import { InstructorModule } from '../instructor/instructor.module';
 import { StudentModule } from '../student/student.module';
 import jwtConfig from '../config/config/jwt.config';
 import { ManagerModule } from '../manager/manager.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { StudentEntity } from '../student/entities/student.entity';
+import { ManagerEntity } from '../manager/entities/manager.entity';
+import { InstructorEntity } from '../instructor/entities/instructor.entity';
 
 @Module({
   imports: [
     ConfigModule.forFeature(jwtConfig),
+    TypeOrmModule.forFeature([StudentEntity, ManagerEntity, InstructorEntity]),
     MembersModule,
     InstructorModule,
     StudentModule,

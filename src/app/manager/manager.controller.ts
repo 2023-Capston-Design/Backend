@@ -28,13 +28,9 @@ export class ManagerController {
   constructor(private readonly managerService: ManagerService) { }
 
   @Get()
-  @AllowedRole([Role.MANAGER])
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: '모든 관리자 정보를 조회합니다. Manager 권한이 필요합니다',
   })
-  @ApiBearerAuth()
   @ApiOkResponse({ type: ManagerProfileResponse, isArray: true })
   public async getAllManagers(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -44,13 +40,9 @@ export class ManagerController {
   }
 
   @Get(':id')
-  @AllowedRole([Role.MANAGER])
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: '관리자 정보를 관리자 id로 조회합니다. Manager 권한이 필요합니다',
   })
-  @ApiBearerAuth()
   @ApiOkResponse({ type: ManagerProfileResponse })
   @ApiNotFoundResponse({
     description: MEMBER_ERROR.MEMBER_NOT_FOUND,

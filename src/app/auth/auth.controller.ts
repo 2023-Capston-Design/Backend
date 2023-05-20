@@ -5,9 +5,11 @@ import {
   Post,
   Req,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -16,6 +18,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
   getSchemaPath,
   refs,
 } from '@nestjs/swagger';
@@ -40,6 +43,7 @@ import { InstructorProfileRepsonse } from '../instructor/dto/instructor-profile.
 import { Sex } from '@src/infrastructure/enum/sex.enum';
 import { ManagerProfileResponse } from '../manager/dto/manager-profile.response';
 import { ManagerCreateDto } from '../manager/dto/manager-create.request';
+import { AuthGuard } from './auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -156,5 +160,23 @@ export class AuthController {
   })
   public async join(@Body() body: JoinRequest): Promise<JoinResponse> {
     return await this.authService.join(body);
+  }
+
+  @Patch('refresh')
+  @UseGuards(AuthGuard)
+  @ApiUnauthorizedResponse({
+    description: [AUTH_ERROR.INVALID_TOKEN, AUTH_ERROR.TOKEN_EXPIRED].join(
+      ', ',
+    ),
+  })
+  @ApiBadRequestResponse({
+    description: [AUTH_ERROR.UNCONFIRMED_ROLE].join(', '),
+  })
+  @ApiOperation({
+    summary: 'Access Token 재발급. Refresh Token 필드는 Null로 반환합니다.',
+  })
+  @ApiBearerAuth()
+  public async refreshAccessToken(@Req() req) {
+    return await this.authService.refreshAccessToken(req);
   }
 }
