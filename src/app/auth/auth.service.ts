@@ -12,12 +12,16 @@ import { UnconfirmedRole } from '@src/infrastructure/errors/auth.error';
 import { MembersService } from '../members/members.service';
 import { StudentProfileResponse } from '../student/dto/student-profile.response';
 import { InstructorProfileRepsonse } from '../instructor/dto/instructor-profile.response';
-import { JwtPayload } from '@src/infrastructure/types/jwt.types';
+import {
+  JwtPayload,
+  JwtSubjectType,
+} from '@src/infrastructure/types/jwt.types';
 import { JoinResponse } from './dto/join.response';
 import { JoinRequest } from './dto/join.request';
 import { StudentCreateDto } from '../student/dto/student-create.request';
 import { InstructorCreateDto } from '../instructor/dto/instructor-create.request';
 import { ManagerService } from '../manager/manager.service';
+import { ManagerProfileResponse } from '../manager/dto/manager-profile.response';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +40,8 @@ export class AuthService {
 
     let selectiveServiceResult:
       | StudentProfileResponse
-      | InstructorProfileRepsonse;
+      | InstructorProfileRepsonse
+      | ManagerProfileResponse;
     if (role === Role.STUDENT) {
       selectiveServiceResult = await this.studentService.getStudentByEmail(
         email,
@@ -44,6 +49,10 @@ export class AuthService {
     } else if (role === Role.INSTRUCTOR) {
       selectiveServiceResult =
         await this.instructorService.getInstructorByEmail(email);
+    } else if (role === Role.MANAGER) {
+      selectiveServiceResult = await this.managerService.getManagerByEmail(
+        email,
+      );
     } else {
       throw new UnconfirmedRole();
     }
@@ -88,14 +97,14 @@ export class AuthService {
   private async generateAccessToken(payload: JwtPayload): Promise<string> {
     return this.jwtService.signAsync(payload, {
       expiresIn: this.jwtSetting.accessToken.expire,
-      subject: this.jwtSetting.accessToken.subject,
+      subject: JwtSubjectType.ACCESS,
     });
   }
 
   private async generateRefreshToken(payload: JwtPayload): Promise<string> {
     return this.jwtService.signAsync(payload, {
       expiresIn: this.jwtSetting.refreshToken.expire,
-      subject: this.jwtSetting.refreshToken.subject,
+      subject: JwtSubjectType.REFRESH,
     });
   }
 }

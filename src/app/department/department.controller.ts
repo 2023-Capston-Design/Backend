@@ -7,18 +7,24 @@ import {
   ParseIntPipe,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { DepartmentService } from './department.service';
 import { DepartmentCreateDto } from './dto/department-create.request';
 import { DepartmentEntity } from './entities/department.entity';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { DEPARTMENT_ERROR } from '@src/infrastructure/errors/department.error';
+import { AuthGuard } from '../auth/auth.guard';
+import { Role } from '@src/infrastructure/enum/role.enum';
+import { AllowedRole } from '@src/infrastructure/rbac/decorator/role.decorator';
+import { RoleGuard } from '@src/infrastructure/rbac/role/role.guard';
 
 @ApiTags('Department')
 @Controller('department')
@@ -58,9 +64,13 @@ export class DepartmentController {
   }
 
   @Post()
+  @AllowedRole([Role.MANAGER])
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @ApiOperation({
-    summary: '부서정보를 생성합니다',
+    summary: '부서정보를 생성합니다. Manager 권한이 요구됩니다.',
   })
+  @ApiBearerAuth()
   @ApiOkResponse({
     type: DepartmentEntity,
   })

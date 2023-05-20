@@ -19,6 +19,7 @@ import { ManagerModule } from '../manager/manager.module';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
+      global: true,
       useFactory: (configService: ConfigService) => {
         const issuer = configService.get<string>('ISSUER', 'hoplin');
         return {

@@ -35,6 +35,16 @@ export class ManagerService {
     return manager;
   }
 
+  public async getManagerByEmail(
+    email: string,
+  ): Promise<ManagerProfileResponse> {
+    const manager = await this.managerRepository.findOneBy({ email });
+    if (!manager) {
+      throw new MemberNotFound();
+    }
+    return manager;
+  }
+
   public async createManager(
     data: ManagerCreateDto,
   ): Promise<ManagerProfileResponse> {
