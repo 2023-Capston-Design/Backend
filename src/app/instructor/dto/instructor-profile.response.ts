@@ -5,6 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { InstructorEntity } from '../entities/instructor.entity';
 import {
   IsDate,
+  IsEmail,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -26,7 +27,7 @@ export class InstructorProfileRepsonse implements InstructorInterface {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
+  @IsEmail()
   email: string;
 
   @ApiProperty()

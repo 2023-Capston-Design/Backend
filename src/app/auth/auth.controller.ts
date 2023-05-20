@@ -38,6 +38,8 @@ import { InstructorCreateDto } from '../instructor/dto/instructor-create.request
 import { StudentProfileResponse } from '../student/dto/student-profile.response';
 import { InstructorProfileRepsonse } from '../instructor/dto/instructor-profile.response';
 import { Sex } from '@src/infrastructure/enum/sex.enum';
+import { ManagerProfileResponse } from '../manager/dto/manager-profile.response';
+import { ManagerCreateDto } from '../manager/dto/manager-create.request';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -67,8 +69,10 @@ export class AuthController {
   @ApiExtraModels(
     StudentCreateDto,
     InstructorCreateDto,
+    ManagerCreateDto,
     StudentProfileResponse,
     InstructorProfileRepsonse,
+    ManagerProfileResponse,
   )
   @ApiBody({
     schema: {
@@ -78,6 +82,9 @@ export class AuthController {
         },
         {
           $ref: getSchemaPath(InstructorCreateDto),
+        },
+        {
+          $ref: getSchemaPath(ManagerCreateDto),
         },
       ],
     },
@@ -109,6 +116,18 @@ export class AuthController {
         } as InstructorCreateDto,
         description: "'birth', 'profileImageURL' is Optional",
       },
+      Manager: {
+        value: {
+          email: 'manager@gmail.com',
+          name: 'manager',
+          password: 'password',
+          sex: Sex.MALE,
+          role: Role.MANAGER,
+          birth: new Date(),
+          profileImageURL: 'URL',
+        } as ManagerCreateDto,
+        description: "'birth', 'profileImageURL' is Optional",
+      },
     },
   })
   @ApiOkResponse({
@@ -119,6 +138,9 @@ export class AuthController {
         },
         {
           $ref: getSchemaPath(InstructorProfileRepsonse),
+        },
+        {
+          $ref: getSchemaPath(ManagerProfileResponse),
         },
       ],
     },

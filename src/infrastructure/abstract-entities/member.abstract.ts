@@ -10,9 +10,7 @@ import { Role } from '@infrastructure/enum/role.enum';
 import { Sex } from '@infrastructure/enum/sex.enum';
 import { DepartmentEntity } from '@src/app/department/entities/department.entity';
 
-export abstract class Member
-  implements Omit<MemberInterface, 'departmentId' | 'department'>
-{
+export abstract class Member implements MemberInterface {
   @PrimaryGeneratedColumn()
   @ApiProperty()
   id: number;

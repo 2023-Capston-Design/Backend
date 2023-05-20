@@ -1,25 +1,17 @@
-import { StudentInterface } from '@app/student/interface/student.interface';
 import { ApiProperty } from '@nestjs/swagger';
-import { DepartmentEntity } from '@src/app/department/entities/department.entity';
+import { MemberInterface } from '@src/infrastructure/abstract-entities/member.interface';
 import { Role } from '@src/infrastructure/enum/role.enum';
 import { Sex } from '@src/infrastructure/enum/sex.enum';
-import { Transform } from 'class-transformer';
 import {
   IsDate,
   IsEmail,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 
-export class StudentCreateDto implements StudentInterface {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  studentId: string;
-
+export class ManagerCreateDto implements MemberInterface {
   @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
@@ -27,7 +19,7 @@ export class StudentCreateDto implements StudentInterface {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
+  @IsEmail()
   name: string;
 
   @ApiProperty()
@@ -47,34 +39,19 @@ export class StudentCreateDto implements StudentInterface {
   })
   @IsNotEmpty()
   @IsEnum(Role)
-  role: Role.STUDENT;
+  role: Role.MANAGER;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
-  @Transform((params) => {
-    return +params.value;
-  })
-  departmentId: number;
-
-  @ApiProperty({
-    nullable: true,
-  })
   @IsOptional()
   @IsDate()
   birth?: Date;
 
-  @ApiProperty({
-    nullable: true,
-  })
+  @ApiProperty()
   @IsOptional()
   @IsString()
   profileImageURL?: string;
 
-  constructor(data: StudentCreateDto) {
+  constructor(data: ManagerCreateDto) {
     Object.assign(this, data);
   }
-
-  // Department entity save property
-  department: DepartmentEntity;
 }

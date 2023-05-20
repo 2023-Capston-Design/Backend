@@ -7,6 +7,7 @@ import { MembersModule } from '../members/members.module';
 import { InstructorModule } from '../instructor/instructor.module';
 import { StudentModule } from '../student/student.module';
 import jwtConfig from '../config/config/jwt.config';
+import { ManagerModule } from '../manager/manager.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import jwtConfig from '../config/config/jwt.config';
     MembersModule,
     InstructorModule,
     StudentModule,
+    ManagerModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

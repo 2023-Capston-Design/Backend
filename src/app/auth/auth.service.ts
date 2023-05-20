@@ -17,6 +17,7 @@ import { JoinResponse } from './dto/join.response';
 import { JoinRequest } from './dto/join.request';
 import { StudentCreateDto } from '../student/dto/student-create.request';
 import { InstructorCreateDto } from '../instructor/dto/instructor-create.request';
+import { ManagerService } from '../manager/manager.service';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +28,7 @@ export class AuthService {
     private readonly instructorService: InstructorService,
     private readonly studentService: StudentService,
     private readonly memberService: MembersService,
+    private readonly managerService: ManagerService,
   ) { }
 
   public async login(body: LoginRequest): Promise<TokenResponse> {
@@ -75,6 +77,8 @@ export class AuthService {
       result = await this.studentService.createStudent(body);
     } else if (role === Role.INSTRUCTOR) {
       result = await this.instructorService.createInstructor(body);
+    } else if (role === Role.MANAGER) {
+      result = await this.managerService.createManager(body);
     } else {
       throw new UnconfirmedRole();
     }
