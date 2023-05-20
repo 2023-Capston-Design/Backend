@@ -37,6 +37,7 @@ import { StudentCreateDto } from '../student/dto/student-create.request';
 import { InstructorCreateDto } from '../instructor/dto/instructor-create.request';
 import { StudentProfileResponse } from '../student/dto/student-profile.response';
 import { InstructorProfileRepsonse } from '../instructor/dto/instructor-profile.response';
+import { Sex } from '@src/infrastructure/enum/sex.enum';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -71,7 +72,7 @@ export class AuthController {
   )
   @ApiBody({
     schema: {
-      oneOf: [
+      anyOf: [
         {
           $ref: getSchemaPath(StudentCreateDto),
         },
@@ -82,16 +83,37 @@ export class AuthController {
     },
     examples: {
       Student: {
-        value: StudentCreateDto,
+        value: {
+          studentId: 'B889047',
+          email: 'jhoplin7259@gmail.com',
+          name: '윤준호',
+          password: 'password',
+          sex: Sex.MALE,
+          role: Role.STUDENT,
+          departmentId: 1,
+          birth: new Date(),
+          profileImageURL: 'URL',
+        } as StudentCreateDto,
+        description: "'birth', 'profileImageURL' is Optional",
       },
       Instructor: {
-        value: InstructorCreateDto,
+        value: {
+          email: 'jsnbs@naver.com',
+          name: '김병서',
+          password: 'password',
+          sex: Sex.MALE,
+          role: Role.INSTRUCTOR,
+          departmentId: 1,
+          birth: new Date(),
+          profileImageURL: 'URL',
+        } as InstructorCreateDto,
+        description: "'birth', 'profileImageURL' is Optional",
       },
     },
   })
   @ApiOkResponse({
     schema: {
-      oneOf: [
+      anyOf: [
         {
           $ref: getSchemaPath(StudentProfileResponse),
         },
