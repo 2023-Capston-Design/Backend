@@ -48,10 +48,10 @@ export class DepartmentEntity implements DepartmentInterface {
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => StudentEntity, (student) => student.departmentId)
+  @OneToMany(() => StudentEntity, (student) => student.department)
   students: StudentEntity[];
 
-  @OneToMany(() => InstructorEntity, (instructor) => instructor.departmentId)
+  @OneToMany(() => InstructorEntity, (instructor) => instructor.department)
   instructors: InstructorEntity[];
 
   constructor(data: DepartmentInterface) {

@@ -11,6 +11,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { DepartmentEntity } from '@src/app/department/entities/department.entity';
 
 export class InstructorProfileRepsonse implements InstructorInterface {
   @ApiProperty()
@@ -48,6 +49,11 @@ export class InstructorProfileRepsonse implements InstructorInterface {
   role: Role.INSTRUCTOR;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+
+  @ApiProperty()
   @IsOptional()
   @IsDate()
   birth: Date;
@@ -58,6 +64,18 @@ export class InstructorProfileRepsonse implements InstructorInterface {
   @IsOptional()
   @IsString()
   profileImageURL?: string;
+
+  @ApiProperty({
+    type: DepartmentEntity,
+  })
+  department: DepartmentEntity;
+
+  @ApiProperty({
+    nullable: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  departmentId: number;
 
   @ApiProperty()
   @IsDate()
@@ -77,5 +95,4 @@ export class InstructorProfileRepsonse implements InstructorInterface {
   constructor(instructor: InstructorEntity) {
     Object.assign(this, instructor);
   }
-  password: string;
 }

@@ -8,7 +8,10 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsNumber,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { DepartmentEntity } from '@src/app/department/entities/department.entity';
 
 export class InstructorCreateDto implements InstructorInterface {
   @ApiProperty()
@@ -40,6 +43,14 @@ export class InstructorCreateDto implements InstructorInterface {
   @IsEnum(Role)
   role: Role.INSTRUCTOR;
 
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  @Transform((params) => {
+    return +params.value;
+  })
+  departmentId: number;
+
   @ApiProperty({
     nullable: true,
   })
@@ -64,4 +75,7 @@ export class InstructorCreateDto implements InstructorInterface {
   constructor(data: InstructorCreateDto) {
     Object.assign(this, data);
   }
+
+  // Department entity save property
+  department: DepartmentEntity;
 }

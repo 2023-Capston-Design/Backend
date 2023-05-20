@@ -11,6 +11,7 @@ import { StudentEntity } from '../student/entities/student.entity';
 import { MembersService } from '../members/members.service';
 import { InstructorCreateDto } from './dto/instructor-create.request';
 import { Role } from '@src/infrastructure/enum/role.enum';
+import { DepartmentService } from '../department/department.service';
 
 @Injectable()
 export class InstructorService {
@@ -19,12 +20,20 @@ export class InstructorService {
     private readonly instructorRepository: Repository<InstructorEntity>,
     private readonly memberService: MembersService,
     private readonly dataSource: DataSource,
+    private readonly departmentService: DepartmentService,
   ) { }
 
   public async getInstructorById(
     id: number,
   ): Promise<InstructorProfileRepsonse> {
-    const instructor = await this.instructorRepository.findOneBy({ id });
+    const instructor = await this.instructorRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        department: true,
+      },
+    });
     if (!instructor) {
       throw new MemberNotFound();
     }
@@ -48,6 +57,9 @@ export class InstructorService {
     const student = await this.instructorRepository.find({
       skip: page - 1,
       take: pagesize,
+      relations: {
+        department: true,
+      },
     });
     return student.map((x) => new InstructorProfileRepsonse(x));
   }
@@ -55,16 +67,18 @@ export class InstructorService {
   public async createInstructor(
     data: InstructorCreateDto,
   ): Promise<InstructorProfileRepsonse> {
-    const { email } = data;
+    const { email, departmentId } = data;
     await this.memberService.validateEmail(email);
-
+    const department = await this.departmentService.getDepartmentById(
+      departmentId,
+    );
+    data.department = department;
     // Apply transaction while saving
     const newInstructor = await this.dataSource.transaction(
       async (manager: EntityManager) => {
-        return await this.instructorRepository.save({
-          ...data,
-          role: Role.INSTRUCTOR,
-        });
+        const newInstructor = new InstructorEntity(data);
+        const repository = manager.getRepository(InstructorEntity);
+        return await repository.save(newInstructor);
       },
     );
     return new InstructorProfileRepsonse(newInstructor);

@@ -1,11 +1,14 @@
 import { StudentInterface } from '@app/student/interface/student.interface';
 import { ApiProperty } from '@nestjs/swagger';
+import { DepartmentEntity } from '@src/app/department/entities/department.entity';
 import { Role } from '@src/infrastructure/enum/role.enum';
 import { Sex } from '@src/infrastructure/enum/sex.enum';
+import { Transform } from 'class-transformer';
 import {
   IsDate,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -45,6 +48,14 @@ export class StudentCreateDto implements StudentInterface {
   @IsEnum(Role)
   role: Role.STUDENT;
 
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  @Transform((params) => {
+    return +params.value;
+  })
+  departmentId: number;
+
   @ApiProperty({
     nullable: true,
   })
@@ -62,4 +73,7 @@ export class StudentCreateDto implements StudentInterface {
   constructor(data: StudentCreateDto) {
     Object.assign(this, data);
   }
+
+  // Department entity save property
+  department: DepartmentEntity;
 }

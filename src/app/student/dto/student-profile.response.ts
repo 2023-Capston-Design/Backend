@@ -1,6 +1,7 @@
 import { StudentEntity } from '@app/student/entities/student.entity';
 import { StudentInterface } from '@app/student/interface/student.interface';
 import { ApiProperty } from '@nestjs/swagger';
+import { DepartmentEntity } from '@src/app/department/entities/department.entity';
 import { Role } from '@src/infrastructure/enum/role.enum';
 import { Sex } from '@src/infrastructure/enum/sex.enum';
 import {
@@ -53,6 +54,16 @@ export class StudentProfileResponse implements StudentInterface {
   birth: Date;
 
   @ApiProperty({
+    type: DepartmentEntity,
+  })
+  department: DepartmentEntity;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+
+  @ApiProperty({
     nullable: true,
   })
   @IsOptional()
@@ -64,7 +75,7 @@ export class StudentProfileResponse implements StudentInterface {
   })
   @IsOptional()
   @IsNumber()
-  departmentId?: number;
+  departmentId: number;
 
   @ApiProperty()
   @IsOptional()
@@ -85,5 +96,4 @@ export class StudentProfileResponse implements StudentInterface {
   constructor(student: StudentEntity) {
     Object.assign(this, student);
   }
-  password: string;
 }
