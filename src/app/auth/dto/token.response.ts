@@ -11,17 +11,7 @@ export class TokenResponse {
   @IsString()
   private accessToken: string;
 
-  @ApiProperty({
-    example:
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-    description: 'Refresh Token',
-  })
-  @IsNotEmpty()
-  @IsString()
-  private refreshToken: string;
-
-  constructor(accesstoken: string, refreshtoken: string) {
+  constructor(accesstoken: string) {
     this.accessToken = accesstoken;
-    this.refreshToken = refreshtoken;
   }
 }

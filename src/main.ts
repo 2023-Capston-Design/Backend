@@ -4,12 +4,14 @@ import { SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import generateSwaggerDocument from './infrastructure/swagger/swagger.config';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({ origin: true, credentials: true });
   app.use(helmet());
+  app.use(cookieParser());
   /**
    * Define global pipe
    *
