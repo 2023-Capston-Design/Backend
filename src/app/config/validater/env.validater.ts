@@ -13,4 +13,11 @@ export const envValidator = Joi.object({
   REFRESH_SUBJECT: Joi.string().required(),
   TOKEN_SECRET: Joi.string().required(),
   ISSUER: Joi.string().required(),
+  MONGO_HOST: Joi.string().required(),
+  MONGO_PORT: Joi.string().required(),
+  MONGO_USER: Joi.string().required(),
+  MONGO_PASSWORD: Joi.string().required(),
+  MAIL_ID: Joi.string().required(),
+  MAIL_PASSWORD: Joi.string().required(),
+  MAIL_API_GATEWAY: Joi.string().required(),
 }).unknown(); // allow unknow field except field in validator
