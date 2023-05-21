@@ -46,6 +46,7 @@ import { Sex } from '@src/infrastructure/enum/sex.enum';
 import { ManagerProfileResponse } from '../manager/dto/manager-profile.response';
 import { ManagerCreateDto } from '../manager/dto/manager-create.request';
 import { AuthGuard } from './auth.guard';
+import { WithdrawRequest } from './dto/withdraw.request';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -190,12 +191,33 @@ export class AuthController {
 
   @Delete('logout')
   @ApiOperation({
-    description: '로그아웃. 쿠키에서 refresh token을 삭제합니다.',
+    summary: '로그아웃. 쿠키에서 refresh token을 삭제합니다.',
   })
   public async logout(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
     return await this.authService.logout(req, res);
+  }
+
+  @Delete('withdraw')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: '회원탈퇴' })
+  @ApiBearerAuth()
+  @ApiBadRequestResponse({
+    description: [
+      AUTH_ERROR.INVALID_PASSWORD,
+      AUTH_ERROR.UNCONFIRMED_ROLE,
+      MEMBER_ERROR.MEMBER_NOT_FOUND,
+    ].join(', '),
+  })
+  @ApiUnauthorizedResponse({
+    description: [AUTH_ERROR.NEED_TOKEN].join(', '),
+  })
+  public async withdraw(
+    @Body() body: WithdrawRequest,
+    @Req() req: Request,
+  ): Promise<boolean> {
+    return await this.authService.withdraw(body, req);
   }
 }
