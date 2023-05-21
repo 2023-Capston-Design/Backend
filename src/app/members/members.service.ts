@@ -9,6 +9,7 @@ import {
 } from '@src/infrastructure/errors/members.errors';
 import { InvalidPassword } from '@infrastructure/errors/auth.error';
 import * as bcrypt from 'bcryptjs';
+import { ManagerEntity } from '../manager/entities/manager.entity';
 
 @Injectable()
 export class MembersService {
@@ -18,6 +19,8 @@ export class MembersService {
     private readonly studentRepository: Repository<StudentEntity>,
     @InjectRepository(InstructorEntity)
     private readonly instructorRepository: Repository<InstructorEntity>,
+    @InjectRepository(ManagerEntity)
+    private readonly managerRepository: Repository<ManagerEntity>,
   ) { }
 
   public async validateStudentId(studentId: string): Promise<void> {
@@ -43,7 +46,13 @@ export class MembersService {
       },
     });
 
-    if (studentValidate > 0 || instructorValidate > 0) {
+    const managerValidate = await this.managerRepository.count({
+      where: {
+        email,
+      },
+    });
+
+    if (studentValidate > 0 || instructorValidate > 0 || managerValidate > 0) {
       throw new DuplicatedEmail();
     }
   }
