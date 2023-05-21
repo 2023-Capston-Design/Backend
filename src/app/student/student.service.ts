@@ -3,11 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { StudentEntity } from '@app/student/entities/student.entity';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { StudentProfileResponse } from '@app/student/dto/student-profile.response';
-import {
-  MemberNotFound,
-  DuplicatedStudentId,
-  DuplicatedEmail,
-} from '@infrastructure/errors/members.errors';
+import { MemberNotFound } from '@infrastructure/errors/members.errors';
 import { StudentCreateDto } from './dto/student-create.request';
 import { Role } from '@src/infrastructure/enum/role.enum';
 import { MembersService } from '../members/members.service';

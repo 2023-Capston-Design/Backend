@@ -6,6 +6,7 @@ import { Role } from '@src/infrastructure/enum/role.enum';
 import { Sex } from '@src/infrastructure/enum/sex.enum';
 import {
   IsDate,
+  IsEmail,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -26,7 +27,7 @@ export class StudentProfileResponse implements StudentInterface {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
+  @IsEmail()
   email: string;
 
   @ApiProperty()

@@ -10,6 +10,4 @@ export interface MemberInterface {
   role: Role;
   birth?: Date;
   profileImageURL?: string;
-  departmentId: number;
-  department: DepartmentEntity;
 }
