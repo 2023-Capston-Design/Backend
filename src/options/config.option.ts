@@ -3,6 +3,8 @@ import * as dotenv from 'dotenv';
 import { envValidator } from '@app/config/validater/env.validater';
 import databaseConfig from '@app/config/config/database.config';
 import jwtConfig from '@app/config/config/jwt.config';
+import mongoConfig from '@src/app/config/config/mongo.config';
+import mailConfig from '@src/app/config/config/mail.config';
 
 dotenv.config({
   path: `${__dirname}/../app/config/env/${process.env.API_MODE || 'development'
@@ -23,7 +25,7 @@ export const configOptions: ConfigModuleOptions = {
     `${__dirname}/../config/env/${process.env.API_MODE || 'development'}.env`,
   ],
   cache: true,
-  load: [databaseConfig, jwtConfig],
+  load: [databaseConfig, jwtConfig, mongoConfig, mailConfig],
   validationSchema: envValidator,
   validationOptions: {
     allowUnknown: true,
