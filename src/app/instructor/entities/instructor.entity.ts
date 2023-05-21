@@ -5,7 +5,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { DepartmentEntity } from '@app/department/entities/department.entity';
 
 @Entity('instructor')
-export class InstructorEntity extends Member implements InstructorInterface {
+export class InstructorEntity
+  extends Member
+  implements Omit<InstructorInterface, 'departmentId'>
+{
   @Column('varchar', {
     nullable: true,
   })
@@ -19,7 +22,7 @@ export class InstructorEntity extends Member implements InstructorInterface {
   @JoinColumn({
     name: 'department_id',
   })
-  departmentId: number;
+  department: DepartmentEntity;
 
   constructor(
     datas: Omit<InstructorInterface, 'id' | 'createdAt' | 'updatedAt' | 'role'>,

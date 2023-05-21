@@ -5,9 +5,11 @@ import {
   Post,
   Req,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -16,6 +18,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
   getSchemaPath,
   refs,
 } from '@nestjs/swagger';
@@ -37,6 +40,10 @@ import { StudentCreateDto } from '../student/dto/student-create.request';
 import { InstructorCreateDto } from '../instructor/dto/instructor-create.request';
 import { StudentProfileResponse } from '../student/dto/student-profile.response';
 import { InstructorProfileRepsonse } from '../instructor/dto/instructor-profile.response';
+import { Sex } from '@src/infrastructure/enum/sex.enum';
+import { ManagerProfileResponse } from '../manager/dto/manager-profile.response';
+import { ManagerCreateDto } from '../manager/dto/manager-create.request';
+import { AuthGuard } from './auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -66,37 +73,78 @@ export class AuthController {
   @ApiExtraModels(
     StudentCreateDto,
     InstructorCreateDto,
+    ManagerCreateDto,
     StudentProfileResponse,
     InstructorProfileRepsonse,
+    ManagerProfileResponse,
   )
   @ApiBody({
     schema: {
-      oneOf: [
+      anyOf: [
         {
           $ref: getSchemaPath(StudentCreateDto),
         },
         {
           $ref: getSchemaPath(InstructorCreateDto),
         },
+        {
+          $ref: getSchemaPath(ManagerCreateDto),
+        },
       ],
     },
     examples: {
       Student: {
-        value: StudentCreateDto,
+        value: {
+          studentId: 'B889047',
+          email: 'jhoplin7259@gmail.com',
+          name: '윤준호',
+          password: 'password',
+          sex: Sex.MALE,
+          role: Role.STUDENT,
+          departmentId: 1,
+          birth: new Date(),
+          profileImageURL: 'URL',
+        } as StudentCreateDto,
+        description: "'birth', 'profileImageURL' is Optional",
       },
       Instructor: {
-        value: InstructorCreateDto,
+        value: {
+          email: 'jsnbs@naver.com',
+          name: '김병서',
+          password: 'password',
+          sex: Sex.MALE,
+          role: Role.INSTRUCTOR,
+          departmentId: 1,
+          birth: new Date(),
+          profileImageURL: 'URL',
+        } as InstructorCreateDto,
+        description: "'birth', 'profileImageURL' is Optional",
+      },
+      Manager: {
+        value: {
+          email: 'manager@gmail.com',
+          name: 'manager',
+          password: 'password',
+          sex: Sex.MALE,
+          role: Role.MANAGER,
+          birth: new Date(),
+          profileImageURL: 'URL',
+        } as ManagerCreateDto,
+        description: "'birth', 'profileImageURL' is Optional",
       },
     },
   })
   @ApiOkResponse({
     schema: {
-      oneOf: [
+      anyOf: [
         {
           $ref: getSchemaPath(StudentProfileResponse),
         },
         {
           $ref: getSchemaPath(InstructorProfileRepsonse),
+        },
+        {
+          $ref: getSchemaPath(ManagerProfileResponse),
         },
       ],
     },
@@ -112,5 +160,23 @@ export class AuthController {
   })
   public async join(@Body() body: JoinRequest): Promise<JoinResponse> {
     return await this.authService.join(body);
+  }
+
+  @Patch('refresh')
+  @UseGuards(AuthGuard)
+  @ApiUnauthorizedResponse({
+    description: [AUTH_ERROR.INVALID_TOKEN, AUTH_ERROR.TOKEN_EXPIRED].join(
+      ', ',
+    ),
+  })
+  @ApiBadRequestResponse({
+    description: [AUTH_ERROR.UNCONFIRMED_ROLE].join(', '),
+  })
+  @ApiOperation({
+    summary: 'Access Token 재발급. Refresh Token 필드는 Null로 반환합니다.',
+  })
+  @ApiBearerAuth()
+  public async refreshAccessToken(@Req() req) {
+    return await this.authService.refreshAccessToken(req);
   }
 }

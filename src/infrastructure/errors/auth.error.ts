@@ -6,6 +6,7 @@ export enum AUTH_ERROR {
   INVALID_TOKEN = 'INVALID_TOKEN',
   INVALID_PASSWORD = 'INVALID_PASSWORD',
   UNCONFIRMED_ROLE = 'UNCONFIRMED_ROLE',
+  TOKEN_EXPIRED = 'TOKEN_EXPIRED',
   AUTHENTICATION_REQUIRED = 'AUTHENTICATION_REQUIRED',
 }
 
@@ -17,7 +18,13 @@ export class NeedToken extends UnauthorizedException {
 
 export class InvalidToken extends UnauthorizedException {
   constructor() {
-    super('올바르지 않은 토큰입니다', AUTH_ERROR.INVALID_TOKEN);
+    super('올바르지 않은 유형의 토큰입니다', AUTH_ERROR.INVALID_TOKEN);
+  }
+}
+
+export class TokenExpired extends UnauthorizedException {
+  constructor() {
+    super('토큰이 만료되었습니다', AUTH_ERROR.TOKEN_EXPIRED);
   }
 }
 
