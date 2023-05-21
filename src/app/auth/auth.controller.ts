@@ -6,6 +6,8 @@ import {
   Req,
   UseGuards,
   Patch,
+  Res,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -25,7 +27,7 @@ import {
 import { AuthService } from './auth.service';
 import { LoginRequest } from './dto/login.request';
 import { TokenResponse } from './dto/token.response';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { AUTH_ERROR } from '@src/infrastructure/errors/auth.error';
 import {
   MEMBER_ERROR,
@@ -44,7 +46,6 @@ import { Sex } from '@src/infrastructure/enum/sex.enum';
 import { ManagerProfileResponse } from '../manager/dto/manager-profile.response';
 import { ManagerCreateDto } from '../manager/dto/manager-create.request';
 import { AuthGuard } from './auth.guard';
-import { AuthRefreshGuard } from './auth-refresh.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -54,7 +55,10 @@ export class AuthController {
   @Post('login')
   @UseGuards(RoleGuard)
   @AllowedRole('any')
-  @ApiOperation({ summary: '로그인 API. JWT 토큰을 발급합니다' })
+  @ApiOperation({
+    summary:
+      '로그인 API. JWT 토큰을 발급합니다. Refresh Token은 cookie에 저장됩니다.',
+  })
   @ApiOkResponse({ type: TokenResponse })
   @ApiBadRequestResponse({
     description: [
@@ -63,8 +67,11 @@ export class AuthController {
       MEMBER_ERROR.MEMBER_NOT_FOUND,
     ].join(', '),
   })
-  public async login(@Body() body: LoginRequest): Promise<TokenResponse> {
-    return await this.authService.login(body);
+  public async login(
+    @Body() body: LoginRequest,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<TokenResponse> {
+    return await this.authService.login(body, res);
   }
 
   @Post('join')
@@ -164,7 +171,7 @@ export class AuthController {
   }
 
   @Patch('refresh')
-  @UseGuards(AuthRefreshGuard)
+  @ApiOkResponse({ type: TokenResponse })
   @ApiUnauthorizedResponse({
     description: [AUTH_ERROR.INVALID_TOKEN, AUTH_ERROR.TOKEN_EXPIRED].join(
       ', ',
@@ -174,10 +181,21 @@ export class AuthController {
     description: [AUTH_ERROR.UNCONFIRMED_ROLE].join(', '),
   })
   @ApiOperation({
-    summary: 'Access Token 재발급. Refresh Token 필드는 Null로 반환합니다.',
+    summary:
+      'Access Token 재발급. Cookie에 저장된 refresh token을 통해 재발급합니다.',
   })
-  @ApiBearerAuth()
-  public async refreshAccessToken(@Req() req) {
+  public async refreshAccessToken(@Req() req: Request) {
     return await this.authService.refreshAccessToken(req);
+  }
+
+  @Delete('logout')
+  @ApiOperation({
+    description: '로그아웃. 쿠키에서 refresh token을 삭제합니다.',
+  })
+  public async logout(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return await this.authService.logout(req, res);
   }
 }
