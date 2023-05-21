@@ -22,6 +22,8 @@ localhost:3000/docs
 ## Dev-Docker
 
 ```
+yarn install
+
 cd dev-docker
 
 docker-compose up -d
