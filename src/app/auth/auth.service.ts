@@ -95,13 +95,7 @@ export class AuthService {
   }
 
   public async refreshAccessToken(req: Request) {
-    const token_subject = req.token_subject;
     const payload = req.user;
-    console.log(token_subject);
-    if (token_subject !== JwtSubjectType.REFRESH) {
-      throw new InvalidToken();
-    }
-
     const accessToken = await this.generateAccessToken(payload);
     return new TokenResponse(accessToken, null);
   }

@@ -1,39 +1,40 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { Request } from 'express';
 import {
-  NeedToken,
-  UnconfirmedRole,
-  InvalidToken,
   AuthenticationRequired,
+  InvalidToken,
+  NeedToken,
   TokenExpired,
-} from '@infrastructure/errors/auth.error';
-import jwtConfig from '@app/config/config/jwt.config';
-import { ConfigType } from '@nestjs/config';
-import { Inject } from '@nestjs/common';
+  UnconfirmedRole,
+} from '@src/infrastructure/errors/auth.error';
 import {
-  JwtPayload,
   JwtDecodedPayload,
+  JwtPayload,
   JwtSubjectType,
 } from '@src/infrastructure/types/jwt.types';
-import { StudentService } from '../student/student.service';
-import { InstructorService } from '../instructor/instructor.service';
-import { Role } from '@src/infrastructure/enum/role.enum';
-import { StudentProfileResponse } from '../student/dto/student-profile.response';
-import { InstructorProfileRepsonse } from '../instructor/dto/instructor-profile.response';
-import { MemberNotFound } from '@src/infrastructure/errors/members.errors';
+import { JwtService } from '@nestjs/jwt';
+import jwtConfig from '../config/config/jwt.config';
+import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StudentEntity } from '../student/entities/student.entity';
-import { Repository } from 'typeorm';
 import { InstructorEntity } from '../instructor/entities/instructor.entity';
 import { ManagerEntity } from '../manager/entities/manager.entity';
+import { Repository } from 'typeorm';
+import { Role } from '@src/infrastructure/enum/role.enum';
+import { MemberNotFound } from '@src/infrastructure/errors/members.errors';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthRefreshGuard implements CanActivate {
   constructor(
-    private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
-    private readonly jwtSettings: ConfigType<typeof jwtConfig>,
+    private readonly jwtSetting: ConfigType<typeof jwtConfig>,
+    private readonly jwtService: JwtService,
     @InjectRepository(StudentEntity)
     private readonly studentRepository: Repository<StudentEntity>,
     @InjectRepository(InstructorEntity)
@@ -41,7 +42,6 @@ export class AuthGuard implements CanActivate {
     @InjectRepository(ManagerEntity)
     private readonly managerRepository: Repository<ManagerEntity>,
   ) { }
-
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = await this.extractBearerToken(request);
@@ -51,7 +51,7 @@ export class AuthGuard implements CanActivate {
     let payload: JwtDecodedPayload;
     try {
       payload = await this.jwtService.verifyAsync(token, {
-        secret: this.jwtSettings.secret,
+        secret: this.jwtSetting.secret,
       });
     } catch (err) {
       if (err.name === 'JsonWebTokenError') {
@@ -59,21 +59,10 @@ export class AuthGuard implements CanActivate {
       } else if (err.name === 'TokenExpiredError') {
         throw new TokenExpired();
       }
-      /**
-       * TODO
-       *
-       * 1. Apply redis cache
-       *
-       * 2. Make exception filter
-       *
-       * -> If TokenExpiredError -> check redis
-       *
-       */
       return false;
     }
 
-    // If token is not access or refresh token
-    if (payload.sub !== JwtSubjectType.ACCESS) {
+    if (payload.sub !== JwtSubjectType.REFRESH) {
       throw new AuthenticationRequired();
     }
 
@@ -81,6 +70,7 @@ export class AuthGuard implements CanActivate {
     let repository: Repository<
       StudentEntity | ManagerEntity | InstructorEntity
     >;
+
     switch (payload.user_role) {
       case Role.STUDENT:
         repository = this.studentRepository;
@@ -99,21 +89,16 @@ export class AuthGuard implements CanActivate {
         id,
       },
     });
-    // If user not found
+
     if (!user) {
       throw new MemberNotFound();
     }
 
-    // If user found
     const requser: JwtPayload = {
       user_id: user.id,
       user_role: user.role,
     };
-
-    // Request Token's Payload
     request.user = requser;
-    // Request Token's subject
-    request.token_subject = payload.sub;
     return true;
   }
 

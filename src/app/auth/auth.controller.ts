@@ -44,6 +44,7 @@ import { Sex } from '@src/infrastructure/enum/sex.enum';
 import { ManagerProfileResponse } from '../manager/dto/manager-profile.response';
 import { ManagerCreateDto } from '../manager/dto/manager-create.request';
 import { AuthGuard } from './auth.guard';
+import { AuthRefreshGuard } from './auth-refresh.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -163,7 +164,7 @@ export class AuthController {
   }
 
   @Patch('refresh')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthRefreshGuard)
   @ApiUnauthorizedResponse({
     description: [AUTH_ERROR.INVALID_TOKEN, AUTH_ERROR.TOKEN_EXPIRED].join(
       ', ',
