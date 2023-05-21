@@ -22,7 +22,6 @@ import { JoinResponse } from './dto/join.response';
 import { JoinRequest } from './dto/join.request';
 import { ManagerService } from '../manager/manager.service';
 import { ManagerProfileResponse } from '../manager/dto/manager-profile.response';
-import { Request } from '@src/infrastructure/types';
 
 @Injectable()
 export class AuthService {

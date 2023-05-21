@@ -1,13 +1,15 @@
 import { Request } from 'express';
 
-type FieldOptional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
+declare global {
+  type FieldOptional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 
-interface SwaggerTag {
-  tag: string;
-  description: string;
-}
+  interface SwaggerTag {
+    tag: string;
+    description: string;
+  }
 
-interface Request extends Request {
-  user; // JWT Payload field
-  token_subject; // JWT Token subject. One of value in enum 'JWTSubjectType'
+  interface Request extends Request {
+    user; // JWT Payload field
+    token_subject; // JWT Token subject. One of value in enum 'JWTSubjectType'
+  }
 }
