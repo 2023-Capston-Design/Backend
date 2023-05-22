@@ -47,6 +47,7 @@ import { ManagerProfileResponse } from '../manager/dto/manager-profile.response'
 import { ManagerCreateDto } from '../manager/dto/manager-create.request';
 import { AuthGuard } from './auth.guard';
 import { WithdrawRequest } from './dto/withdraw.request';
+import { ModifyRequestDto } from './dto/modify.request';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -171,6 +172,29 @@ export class AuthController {
     return await this.authService.join(body);
   }
 
+  @Patch('modify')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: '회원정보를 수정합니다' })
+  @ApiUnauthorizedResponse({
+    description: [AUTH_ERROR.INVALID_TOKEN, AUTH_ERROR.TOKEN_EXPIRED].join(
+      ', ',
+    ),
+  })
+  @ApiBadRequestResponse({
+    description: [
+      AUTH_ERROR.INVALID_PASSWORD,
+      AUTH_ERROR.UNCONFIRMED_ROLE,
+      MEMBER_ERROR.MEMBER_NOT_FOUND,
+    ].join(', '),
+  })
+  @ApiBearerAuth()
+  public async modifyInformation(
+    @Body() body: ModifyRequestDto,
+    @Req() req: Request,
+  ) {
+    return this.authService.modify(body, req);
+  }
+
   @Patch('refresh')
   @ApiOkResponse({ type: TokenResponse })
   @ApiUnauthorizedResponse({
@@ -190,6 +214,7 @@ export class AuthController {
   }
 
   @Delete('logout')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: '로그아웃. 쿠키에서 refresh token을 삭제합니다.',
   })

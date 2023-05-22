@@ -6,6 +6,8 @@ import { DataSource, EntityManager, Repository } from 'typeorm';
 import { ManagerProfileResponse } from './dto/manager-profile.response';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemberNotFound } from '@src/infrastructure/errors/members.errors';
+import { ModifyRequestDto } from '../auth/dto/modify.request';
+import { JwtPayload } from '@src/infrastructure/types/jwt.types';
 
 @Injectable()
 export class ManagerService {
@@ -58,5 +60,33 @@ export class ManagerService {
       },
     );
     return new ManagerProfileResponse(newManager);
+  }
+
+  public async modifyManager(
+    body: ModifyRequestDto,
+    req,
+  ): Promise<ManagerEntity> {
+    const { user_id }: JwtPayload = req.user;
+    const { password, changedpassword, name } = body;
+
+    const changedManager = await this.dataSource.transaction(
+      async (manager: EntityManager) => {
+        const repository = manager.getRepository(ManagerEntity);
+        const getMember = await repository.findOneBy({
+          id: user_id,
+        });
+
+        await this.memberService.validatePassword(password, getMember.password);
+
+        return await repository.save({
+          id: user_id,
+          password: changedpassword
+            ? await this.memberService.hashPassword(changedpassword)
+            : password,
+          name: name ? name : getMember.name,
+        });
+      },
+    );
+    return changedManager;
   }
 }

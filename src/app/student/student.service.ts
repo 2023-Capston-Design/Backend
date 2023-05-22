@@ -12,6 +12,8 @@ import {
   DepartmentNotFound,
 } from '@src/infrastructure/errors/department.error';
 import { DepartmentEntity } from '../department/entities/department.entity';
+import { ModifyRequestDto } from '../auth/dto/modify.request';
+import { JwtPayload } from '@src/infrastructure/types/jwt.types';
 
 @Injectable()
 export class StudentService {
@@ -91,5 +93,32 @@ export class StudentService {
     );
 
     return new StudentProfileResponse(newStudent);
+  }
+
+  public async modifyStudent(
+    body: ModifyRequestDto,
+    req,
+  ): Promise<StudentEntity> {
+    const { user_id }: JwtPayload = req.user;
+    const { password, changedpassword, name } = body;
+    const changedStudent = await this.dataSource.transaction(
+      async (manager: EntityManager) => {
+        const repository = manager.getRepository(StudentEntity);
+
+        const getMember = await repository.findOneBy({
+          id: user_id,
+        });
+
+        await this.memberService.validatePassword(password, getMember.password);
+        return await repository.save({
+          id: user_id,
+          password: changedpassword
+            ? await this.memberService.hashPassword(changedpassword)
+            : password,
+          name: name ? name : getMember.name,
+        });
+      },
+    );
+    return changedStudent;
   }
 }

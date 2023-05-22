@@ -31,6 +31,7 @@ import { Repository } from 'typeorm';
 import { StudentEntity } from '../student/entities/student.entity';
 import { InstructorEntity } from '../instructor/entities/instructor.entity';
 import { ManagerEntity } from '../manager/entities/manager.entity';
+import { ModifyRequestDto } from './dto/modify.request';
 
 @Injectable()
 export class AuthService {
@@ -174,6 +175,28 @@ export class AuthService {
       user_role: payload.user_role,
     });
     return new TokenResponse(accessToken);
+  }
+
+  public async modify(
+    body: ModifyRequestDto,
+    req,
+  ): Promise<StudentEntity | InstructorEntity | ManagerEntity> {
+    const { user_role }: JwtPayload = req.user;
+    let modifyResult: StudentEntity | InstructorEntity | ManagerEntity;
+    switch (user_role) {
+      case Role.STUDENT:
+        modifyResult = await this.studentService.modifyStudent(body, req);
+        break;
+      case Role.INSTRUCTOR:
+        modifyResult = await this.instructorService.modifyInstructor(body, req);
+        break;
+      case Role.MANAGER:
+        modifyResult = await this.managerService.modifyManager(body, req);
+        break;
+      default:
+        throw new UnconfirmedRole();
+    }
+    return modifyResult;
   }
 
   public async logout(req: Request, res: Response) {
