@@ -6,6 +6,7 @@ import { Sex } from '@src/infrastructure/enum/sex.enum';
 import { Transform } from 'class-transformer';
 import {
   IsDate,
+  IsEmail,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -21,7 +22,7 @@ export class StudentCreateDto implements StudentInterface {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
+  @IsEmail()
   email: string;
 
   @ApiProperty()

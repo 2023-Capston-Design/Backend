@@ -6,6 +6,7 @@ import {
   UnconfirmedRole,
   InvalidToken,
   AuthenticationRequired,
+  TokenExpired,
 } from '@infrastructure/errors/auth.error';
 import jwtConfig from '@app/config/config/jwt.config';
 import { ConfigType } from '@nestjs/config';
@@ -21,6 +22,11 @@ import { Role } from '@src/infrastructure/enum/role.enum';
 import { StudentProfileResponse } from '../student/dto/student-profile.response';
 import { InstructorProfileRepsonse } from '../instructor/dto/instructor-profile.response';
 import { MemberNotFound } from '@src/infrastructure/errors/members.errors';
+import { InjectRepository } from '@nestjs/typeorm';
+import { StudentEntity } from '../student/entities/student.entity';
+import { Repository } from 'typeorm';
+import { InstructorEntity } from '../instructor/entities/instructor.entity';
+import { ManagerEntity } from '../manager/entities/manager.entity';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -28,8 +34,12 @@ export class AuthGuard implements CanActivate {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtSettings: ConfigType<typeof jwtConfig>,
-    private readonly studentService: StudentService,
-    private readonly instructorService: InstructorService,
+    @InjectRepository(StudentEntity)
+    private readonly studentRepository: Repository<StudentEntity>,
+    @InjectRepository(InstructorEntity)
+    private readonly instructorRepository: Repository<InstructorEntity>,
+    @InjectRepository(ManagerEntity)
+    private readonly managerRepository: Repository<ManagerEntity>,
   ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -44,6 +54,11 @@ export class AuthGuard implements CanActivate {
         secret: this.jwtSettings.secret,
       });
     } catch (err) {
+      if (err.name === 'JsonWebTokenError') {
+        throw new InvalidToken();
+      } else if (err.name === 'TokenExpiredError') {
+        throw new TokenExpired();
+      }
       /**
        * TODO
        *
@@ -57,22 +72,33 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
-    // If token is not access token
+    // If token is not access or refresh token
     if (payload.sub !== JwtSubjectType.ACCESS) {
       throw new AuthenticationRequired();
     }
+
     const id: number = payload.user_id;
-    let user: StudentProfileResponse | InstructorProfileRepsonse | null;
+    let repository: Repository<
+      StudentEntity | ManagerEntity | InstructorEntity
+    >;
     switch (payload.user_role) {
       case Role.STUDENT:
-        user = await this.studentService.getStudentInformationById(id);
+        repository = this.studentRepository;
         break;
       case Role.INSTRUCTOR:
-        user = await this.instructorService.getInstructorById(id);
+        repository = this.instructorRepository;
+        break;
+      case Role.MANAGER:
+        repository = this.managerRepository;
         break;
       default:
         throw new UnconfirmedRole();
     }
+    const user = await repository.findOne({
+      where: {
+        id,
+      },
+    });
     // If user not found
     if (!user) {
       throw new MemberNotFound();
@@ -83,7 +109,11 @@ export class AuthGuard implements CanActivate {
       user_id: user.id,
       user_role: user.role,
     };
+
+    // Request Token's Payload
     request.user = requser;
+    // Request Token's subject
+    request.token_subject = payload.sub;
     return true;
   }
 
