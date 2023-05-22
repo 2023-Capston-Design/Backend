@@ -7,17 +7,23 @@ import { MemberNotFound } from '@infrastructure/errors/members.errors';
 import { StudentCreateDto } from './dto/student-create.request';
 import { Role } from '@src/infrastructure/enum/role.enum';
 import { MembersService } from '../members/members.service';
-import { DepartmentService } from '../department/department.service';
-import { DEPARTMENT_ERROR } from '@src/infrastructure/errors/department.error';
+import {
+  DEPARTMENT_ERROR,
+  DepartmentNotFound,
+} from '@src/infrastructure/errors/department.error';
+import { DepartmentEntity } from '../department/entities/department.entity';
+import { ModifyRequestDto } from '../auth/dto/modify.request';
+import { JwtPayload } from '@src/infrastructure/types/jwt.types';
 
 @Injectable()
 export class StudentService {
   constructor(
     @InjectRepository(StudentEntity)
     private readonly studentRepository: Repository<StudentEntity>,
+    @InjectRepository(DepartmentEntity)
+    private readonly departmentRepository: Repository<DepartmentEntity>,
     private readonly memberService: MembersService,
     private readonly dataSource: DataSource,
-    private readonly departmentService: DepartmentService,
   ) { }
 
   public async getStudentInformationById(
@@ -69,9 +75,13 @@ export class StudentService {
     const { email, studentId, departmentId } = data;
     await this.memberService.validateStudentId(studentId);
     await this.memberService.validateEmail(email);
-    const department = await this.departmentService.getDepartmentById(
-      departmentId,
-    );
+    const department = await this.departmentRepository.findOneBy({
+      id: departmentId,
+    });
+    if (!department) {
+      throw new DepartmentNotFound();
+    }
+
     data.department = department;
     // Apply transaction while saving
     const newStudent = await this.dataSource.transaction(
@@ -83,5 +93,32 @@ export class StudentService {
     );
 
     return new StudentProfileResponse(newStudent);
+  }
+
+  public async modifyStudent(
+    body: ModifyRequestDto,
+    req,
+  ): Promise<StudentEntity> {
+    const { user_id }: JwtPayload = req.user;
+    const { password, changedpassword, name } = body;
+    const changedStudent = await this.dataSource.transaction(
+      async (manager: EntityManager) => {
+        const repository = manager.getRepository(StudentEntity);
+
+        const getMember = await repository.findOneBy({
+          id: user_id,
+        });
+
+        await this.memberService.validatePassword(password, getMember.password);
+        return await repository.save({
+          id: user_id,
+          password: changedpassword
+            ? await this.memberService.hashPassword(changedpassword)
+            : password,
+          name: name ? name : getMember.name,
+        });
+      },
+    );
+    return changedStudent;
   }
 }
