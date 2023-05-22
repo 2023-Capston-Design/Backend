@@ -6,12 +6,12 @@ import { InstructorEntity } from '@app/instructor/entities/instructor.entity';
 import { StudentEntity } from '../student/entities/student.entity';
 import { MembersModule } from '../members/members.module';
 import { DepartmentModule } from '../department/department.module';
+import { DepartmentEntity } from '../department/entities/department.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([InstructorEntity]),
+    TypeOrmModule.forFeature([InstructorEntity, DepartmentEntity]),
     MembersModule,
-    DepartmentModule,
   ],
   providers: [InstructorService],
   controllers: [InstructorController],

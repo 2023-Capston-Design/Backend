@@ -12,15 +12,18 @@ import { MembersService } from '../members/members.service';
 import { InstructorCreateDto } from './dto/instructor-create.request';
 import { Role } from '@src/infrastructure/enum/role.enum';
 import { DepartmentService } from '../department/department.service';
+import { DepartmentEntity } from '../department/entities/department.entity';
+import { DepartmentNotFound } from '@src/infrastructure/errors/department.error';
 
 @Injectable()
 export class InstructorService {
   constructor(
     @InjectRepository(InstructorEntity)
     private readonly instructorRepository: Repository<InstructorEntity>,
+    @InjectRepository(DepartmentEntity)
+    private readonly departmentRepository: Repository<DepartmentEntity>,
     private readonly memberService: MembersService,
     private readonly dataSource: DataSource,
-    private readonly departmentService: DepartmentService,
   ) { }
 
   public async getInstructorById(
@@ -69,9 +72,15 @@ export class InstructorService {
   ): Promise<InstructorProfileRepsonse> {
     const { email, departmentId } = data;
     await this.memberService.validateEmail(email);
-    const department = await this.departmentService.getDepartmentById(
-      departmentId,
-    );
+
+    const department = await this.departmentRepository.findOneBy({
+      id: departmentId,
+    });
+
+    if (!department) {
+      throw new DepartmentNotFound();
+    }
+
     data.department = department;
     // Apply transaction while saving
     const newInstructor = await this.dataSource.transaction(
