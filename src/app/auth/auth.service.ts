@@ -25,6 +25,13 @@ import { JoinRequest } from './dto/join.request';
 import { ManagerService } from '../manager/manager.service';
 import { ManagerProfileResponse } from '../manager/dto/manager-profile.response';
 import { CookieOptions, Request, Response } from 'express';
+import { WithdrawRequest } from './dto/withdraw.request';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { StudentEntity } from '../student/entities/student.entity';
+import { InstructorEntity } from '../instructor/entities/instructor.entity';
+import { ManagerEntity } from '../manager/entities/manager.entity';
+import { ModifyRequestDto } from './dto/modify.request';
 
 @Injectable()
 export class AuthService {
@@ -51,6 +58,12 @@ export class AuthService {
     private readonly studentService: StudentService,
     private readonly memberService: MembersService,
     private readonly managerService: ManagerService,
+    @InjectRepository(StudentEntity)
+    private readonly studentRepository: Repository<StudentEntity>,
+    @InjectRepository(InstructorEntity)
+    private readonly instructorRepository: Repository<InstructorEntity>,
+    @InjectRepository(ManagerEntity)
+    private readonly managerRepository: Repository<ManagerEntity>,
   ) { }
 
   public async login(
@@ -164,6 +177,28 @@ export class AuthService {
     return new TokenResponse(accessToken);
   }
 
+  public async modify(
+    body: ModifyRequestDto,
+    req,
+  ): Promise<StudentEntity | InstructorEntity | ManagerEntity> {
+    const { user_role }: JwtPayload = req.user;
+    let modifyResult: StudentEntity | InstructorEntity | ManagerEntity;
+    switch (user_role) {
+      case Role.STUDENT:
+        modifyResult = await this.studentService.modifyStudent(body, req);
+        break;
+      case Role.INSTRUCTOR:
+        modifyResult = await this.instructorService.modifyInstructor(body, req);
+        break;
+      case Role.MANAGER:
+        modifyResult = await this.managerService.modifyManager(body, req);
+        break;
+      default:
+        throw new UnconfirmedRole();
+    }
+    return modifyResult;
+  }
+
   public async logout(req: Request, res: Response) {
     const refreshToken = req.cookies[this.cookieRefreshKey];
     if (!refreshToken) {
@@ -173,6 +208,39 @@ export class AuthService {
      * 동일한 옵션을 가진 쿠키를 삭제한다
      */
     res.clearCookie(this.cookieRefreshKey, this.refreshCookieOption);
+    return true;
+  }
+
+  public async withdraw(body: WithdrawRequest, req): Promise<boolean> {
+    const user: JwtPayload = req.user;
+    const { password } = body;
+    let repository: Repository<
+      StudentEntity | ManagerEntity | InstructorEntity
+    >;
+    switch (user.user_role) {
+      case Role.STUDENT:
+        repository = this.studentRepository;
+        break;
+      case Role.INSTRUCTOR:
+        repository = this.instructorRepository;
+        break;
+      case Role.MANAGER:
+        repository = this.managerRepository;
+        break;
+      default:
+        throw new UnconfirmedRole();
+    }
+
+    const getMember = await repository.findOne({
+      where: {
+        id: user.user_id,
+      },
+    });
+    await this.memberService.validatePassword(password, getMember.password);
+
+    await repository.delete({
+      id: user.user_id,
+    });
     return true;
   }
 
