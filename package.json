@@ -13,11 +13,11 @@
     "start:debug": "cross-env API_MODE=development nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "cross-env API_MODE=development jest --detect-open-handles",
-    "test:watch": "cross-env API_MODE=development jest --watch",
-    "test:cov": "cross-env API_MODE=development jest --coverage",
-    "test:debug": "cross-env API_MODE=development node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "cross-env API_MODE=development jest --config ./test/jest-e2e.json"
+    "test": "cross-env API_MODE=test jest --detect-open-handles --verbose",
+    "test:watch": "cross-env API_MODE=test jest --watch",
+    "test:cov": "cross-env API_MODE=test jest --coverage --verbose",
+    "test:debug": "cross-env API_MODE=test node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "cross-env API_MODE=test jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/axios": "^2.0.0",

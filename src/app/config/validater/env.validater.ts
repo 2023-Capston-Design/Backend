@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 
 export const envValidator = Joi.object({
-  API_MODE: Joi.string().valid('production', 'development').required(),
+  API_MODE: Joi.string().valid('production', 'development', 'test').required(),
   DATABASE_HOST: Joi.string().required(),
   DATABASE_PORT: Joi.string().required(),
   DATABASE_DEFAULT: Joi.string().required(),
