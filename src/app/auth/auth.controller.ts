@@ -57,6 +57,38 @@ export class AuthController {
   @Post('login')
   @UseGuards(RoleGuard)
   @AllowedRole('any')
+  @ApiBody({
+    schema: {
+      anyOf: [
+        {
+          $ref: getSchemaPath(LoginRequest),
+        },
+      ],
+    },
+    examples: {
+      Student: {
+        value: {
+          email: 'jhoplin7259@gmail.com',
+          password: 'password',
+          role: Role.STUDENT,
+        },
+      },
+      Instructor: {
+        value: {
+          email: 'jsnbs@naver.com',
+          password: 'password',
+          role: Role.INSTRUCTOR,
+        },
+      },
+      Manager: {
+        value: {
+          email: 'manager@gmail.com',
+          password: 'password',
+          role: Role.MANAGER,
+        },
+      },
+    },
+  })
   @ApiOperation({
     summary:
       '로그인 API. JWT 토큰을 발급합니다. Refresh Token은 cookie에 저장됩니다.',
