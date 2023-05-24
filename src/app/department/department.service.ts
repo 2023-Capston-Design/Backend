@@ -112,7 +112,6 @@ export class DepartmentService {
     if (!getDepartment) {
       throw new DepartmentNotFound();
     }
-
     if (
       getDepartment.students.length > 0 ||
       getDepartment.instructors.length > 0

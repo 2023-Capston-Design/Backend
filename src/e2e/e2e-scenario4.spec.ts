@@ -15,6 +15,7 @@ import { StudentCreateDto } from '@src/app/student/dto/student-create.request';
 import { InstructorCreateDto } from '@src/app/instructor/dto/instructor-create.request';
 import { DepartmentEntity } from '@src/app/department/entities/department.entity';
 import { DepartmentCreateDto } from '@src/app/department/dto/department-create.request';
+import { DepartmentDeleteRequest } from '@src/app/department/dto/department-delete.request';
 
 describe('E2E Scenario4 : Enroll new Manager, generate department, enroll new Instructor', () => {
   let app: INestApplication;
@@ -22,7 +23,7 @@ describe('E2E Scenario4 : Enroll new Manager, generate department, enroll new In
   // Mocked Manager
   let newManager: ManagerEntity;
   const mockManager: ManagerCreateDto = {
-    email: 'manager2@gmail.com',
+    email: 'manager3@gmail.com',
     name: 'manager',
     password: 'password',
     sex: Sex.MALE,
@@ -57,7 +58,7 @@ describe('E2E Scenario4 : Enroll new Manager, generate department, enroll new In
 
   // Bearer authorization token
   let mockManagerToken: string;
-  let mockStudentToken: string;
+  let mockInstructorToken: string;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -99,7 +100,7 @@ describe('E2E Scenario4 : Enroll new Manager, generate department, enroll new In
         .send(loginReq);
       expect(response.status).toEqual(201);
       expect(response.body.accessToken).not.toBeUndefined();
-      mockStudentToken = response.body.accessToken;
+      mockManagerToken = response.body.accessToken;
     });
   });
 
@@ -113,6 +114,8 @@ describe('E2E Scenario4 : Enroll new Manager, generate department, enroll new In
 
       expect(response.status).toEqual(201);
       newDepartment = response.body;
+      // Change mockInstructor's departmentId
+      mockInstructor.departmentId = newDepartment.id;
     });
 
     it('GET /department/:id', async () => {
@@ -124,8 +127,90 @@ describe('E2E Scenario4 : Enroll new Manager, generate department, enroll new In
     });
   });
 
-  describe('Withdraw Manager and login', () => {
-    it('DELETE /auth/withdraw', async () => {
+  describe('Create new student and attempt to login, get access token', () => {
+    it('POST /auth/join', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/join')
+        .set('Accept', 'application/json')
+        .send(mockInstructor);
+      expect(response.status).toEqual(201);
+      expect(response.body.email).toEqual(mockInstructor.email);
+      newInstructor = response.body;
+    });
+
+    it('GET /instructor/:id', async () => {
+      const response = await request(app.getHttpServer()).get(
+        `/instructor/${newInstructor.id}`,
+      );
+      expect(response.status).toEqual(200);
+      expect(response.body.email).toEqual(newInstructor.email);
+    });
+
+    it('POST /auth/login', async () => {
+      const loginReq: LoginRequest = {
+        email: newInstructor.email,
+        password: mockInstructor.password,
+        role: newInstructor.role,
+      };
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .set('Accept', 'application/json')
+        .send(loginReq);
+      expect(response.status).toEqual(201);
+      expect(response.body.accessToken).not.toBeUndefined();
+      mockInstructorToken = response.body.accessToken;
+    });
+  });
+
+  describe('Modify Instructor', () => {
+    it('PATCH /auth/modify', async () => {
+      const modifyReq: ModifyRequestDto = {
+        password: mockInstructor.password,
+        changedpassword: changedInstructorPassword,
+        name: changedInstructorName,
+      };
+      const response = await request(app.getHttpServer())
+        .patch('/auth/modify')
+        .set('Accept', 'application/json')
+        .set('Authorization', bearerFormat(mockInstructorToken))
+        .send(modifyReq);
+      expect(response.status).toEqual(200);
+    });
+
+    it('GET /student/:id', async () => {
+      const response = await request(app.getHttpServer()).get(
+        `/instructor/${newInstructor.id}`,
+      );
+      expect(response.status).toEqual(200);
+      expect(response.body.name).toEqual(changedInstructorName);
+    });
+  });
+
+  describe('Delete mock manager, instructor, department', () => {
+    it('DELETE /auth/withdraw - instructor', async () => {
+      const withdrawReq: WithdrawRequest = {
+        password: changedInstructorPassword,
+      };
+      const response = await request(app.getHttpServer())
+        .delete('/auth/withdraw')
+        .set('Authorization', bearerFormat(mockInstructorToken))
+        .send(withdrawReq);
+      expect(response.status).toEqual(200);
+    });
+
+    // Department에 지정된 사람이 아무도 없어야 하므로 뒤로
+    it('DELETE /department/withdraw - department', async () => {
+      const withdrawReq: DepartmentDeleteRequest = {
+        departmentId: newDepartment.id,
+      };
+      const response = await request(app.getHttpServer())
+        .delete('/department/withdraw')
+        .set('Authorization', bearerFormat(mockManagerToken))
+        .send(withdrawReq);
+      expect(response.status).toEqual(200);
+    });
+
+    it('DELETE /auth/withdraw - manager', async () => {
       const withdrawReq: WithdrawRequest = {
         password: mockManager.password,
       };

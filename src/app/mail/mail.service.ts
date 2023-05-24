@@ -90,6 +90,7 @@ export class MailService {
       </form> 
       `,
     };
-    return await this.transporter.sendMail(mailOptions);
+    this.transporter.sendMail(mailOptions);
+    return true;
   }
 }

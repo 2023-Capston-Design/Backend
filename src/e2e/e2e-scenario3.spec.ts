@@ -22,7 +22,7 @@ describe('E2E Scenario3 : Enroll new Manager, generate department, enroll new st
   // Mocked Manager
   let newManager: ManagerEntity;
   const mockManager: ManagerCreateDto = {
-    email: 'manager2@gmail.com',
+    email: 'manager4@gmail.com',
     name: 'manager',
     password: 'password',
     sex: Sex.MALE,
@@ -135,6 +135,7 @@ describe('E2E Scenario3 : Enroll new Manager, generate department, enroll new st
         .send(mockStudent);
 
       expect(response.status).toEqual(201);
+      expect(response.body.email).toEqual(mockStudent.email);
       newStudent = response.body;
     });
 
@@ -143,7 +144,7 @@ describe('E2E Scenario3 : Enroll new Manager, generate department, enroll new st
         `/student/${newStudent.id}`,
       );
       expect(response.status).toEqual(200);
-      expect(response.body.name).toEqual(newStudent.name);
+      expect(response.body.email).toEqual(newStudent.email);
     });
 
     it('POST /auth/login', async () => {
@@ -187,17 +188,6 @@ describe('E2E Scenario3 : Enroll new Manager, generate department, enroll new st
   });
 
   describe('Delete mock manager, student, department', () => {
-    it('DELETE /auth/withdraw - manager', async () => {
-      const withdrawReq: WithdrawRequest = {
-        password: mockManager.password,
-      };
-      const response = await request(app.getHttpServer())
-        .delete('/auth/withdraw')
-        .set('Authorization', bearerFormat(mockManagerToken))
-        .send(withdrawReq);
-      expect(response.status).toEqual(200);
-    });
-
     it('DELETE /auth/withdraw - student', async () => {
       const withdrawReq: WithdrawRequest = {
         password: changedStudentPassword,
@@ -210,13 +200,25 @@ describe('E2E Scenario3 : Enroll new Manager, generate department, enroll new st
       expect(response.status).toEqual(200);
     });
 
+    // Department에 지정된 사람이 아무도 없어야 하므로 뒤로
     it('DELETE /department/withdraw - department', async () => {
       const withdrawReq: DepartmentDeleteRequest = {
         departmentId: newDepartment.id,
       };
-
       const response = await request(app.getHttpServer())
         .delete('/department/withdraw')
+        .set('Authorization', bearerFormat(mockManagerToken))
+        .send(withdrawReq);
+      expect(response.status).toEqual(200);
+    });
+
+    // Department 삭제시 ManagerToken 권한이 필요하므로 뒤로
+    it('DELETE /auth/withdraw - manager', async () => {
+      const withdrawReq: WithdrawRequest = {
+        password: mockManager.password,
+      };
+      const response = await request(app.getHttpServer())
+        .delete('/auth/withdraw')
         .set('Authorization', bearerFormat(mockManagerToken))
         .send(withdrawReq);
       expect(response.status).toEqual(200);
