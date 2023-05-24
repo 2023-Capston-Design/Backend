@@ -8,6 +8,8 @@ import {
   Param,
   Post,
   UseGuards,
+  Delete,
+  Patch,
 } from '@nestjs/common';
 import { DepartmentService } from './department.service';
 import { DepartmentCreateDto } from './dto/department-create.request';
@@ -25,6 +27,8 @@ import { AuthGuard } from '../auth/auth.guard';
 import { Role } from '@src/infrastructure/enum/role.enum';
 import { AllowedRole } from '@src/infrastructure/rbac/decorator/role.decorator';
 import { RoleGuard } from '@src/infrastructure/rbac/role/role.guard';
+import { DepartmentDeleteRequest } from './dto/department-delete.request';
+import { DepartmentModifyDto } from './dto/department-modify.request';
 
 @ApiTags('Department')
 @Controller('department')
@@ -79,5 +83,42 @@ export class DepartmentController {
   })
   public async createDepartment(@Body() body: DepartmentCreateDto) {
     return await this.departmentService.createDepartment(body);
+  }
+
+  @Patch('modify')
+  @AllowedRole([Role.MANAGER])
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: '부서정보를 수정합니다. Manager 권한이 요구됩니다.',
+  })
+  @ApiBadRequestResponse({
+    description: DEPARTMENT_ERROR.DEPARTMENT_NOT_FOUND,
+  })
+  public async modifyDepartment(
+    @Body() body: DepartmentModifyDto,
+  ): Promise<boolean> {
+    return await this.departmentService.modifyDepartment(body);
+  }
+
+  @Delete('withdraw')
+  @AllowedRole([Role.MANAGER])
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: '부서정보를 삭제합니다. Manager 권한이 요구됩니다.',
+  })
+  @ApiBadRequestResponse({
+    description: DEPARTMENT_ERROR.DEPARTMENT_NOT_FOUND,
+  })
+  @ApiConflictResponse({
+    description: DEPARTMENT_ERROR.MEMEBER_STILL_BELONGS_TO_DEPARTMENT,
+  })
+  public async withdrawDepartment(
+    @Body() body: DepartmentDeleteRequest,
+  ): Promise<boolean> {
+    return await this.departmentService.withdrawDepartment(body);
   }
 }

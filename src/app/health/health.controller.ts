@@ -13,7 +13,7 @@ export class HealthController {
 
   @Get('server')
   @HealthCheck() // It add swagger option automatically : https://github.com/nestjs/terminus/blob/master/lib/health-check/health-check.decorator.ts
-  public async checkHealth(): Promise<Promise<HealthCheckResult>> {
+  public async checkHealth(): Promise<HealthCheckResult> {
     return await this.healthService.checkHealth();
   }
 

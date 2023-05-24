@@ -39,18 +39,26 @@ export class DepartmentEntity implements DepartmentInterface {
   @ApiProperty()
   url: string;
 
+  @Column('varchar', {
+    length: 100,
+    nullable: true,
+  })
   @ApiProperty()
   email: string;
 
+  @ApiProperty()
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @ApiProperty()
   @CreateDateColumn()
   createdAt: Date;
 
+  @ApiProperty()
   @OneToMany(() => StudentEntity, (student) => student.department)
   students: StudentEntity[];
 
+  @ApiProperty()
   @OneToMany(() => InstructorEntity, (instructor) => instructor.department)
   instructors: InstructorEntity[];
 
