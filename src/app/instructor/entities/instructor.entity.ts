@@ -15,6 +15,7 @@ export class InstructorEntity
   @ApiProperty()
   laboratory?: string;
 
+  @ApiProperty()
   @ManyToOne(() => DepartmentEntity, (department) => department.instructors, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
